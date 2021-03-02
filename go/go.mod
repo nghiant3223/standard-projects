@@ -8,6 +8,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.8.0
+	github.com/sebdah/goldie/v2 v2.5.3 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/postgres v1.0.8

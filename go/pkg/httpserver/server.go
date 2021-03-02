@@ -2,6 +2,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"strconv"
@@ -23,7 +24,11 @@ func NewServer(port int, handler http.Handler) *Server {
 func (s *Server) Start(ctx context.Context) error {
 	portString := strconv.Itoa(s.Port)
 	s.server.Addr = net.JoinHostPort("", portString)
-	return s.server.ListenAndServe()
+	err := s.server.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+	return err
 }
 
 func (s *Server) Stop(ctx context.Context) error {

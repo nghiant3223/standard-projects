@@ -1,14 +1,18 @@
-INTEGRATION_TEST_ENV=\
-	DATABASE_URL=postgres://postgres:mysecretpassword@localhost:5432/gotodo?sslmode=disable
-
-docker.start:
+docker-start:
 	docker-compose up -d
 
-docker.stop:
+containers-warmup:
+	sleep 5
+
+docker-stop:
 	docker-compose down
 
-go.test.integeration:
-	$(INTEGRATION_TEST_ENV) \
+go-test-integration:
 	go test -tags=integration ./...
 
-test.integration: docker.start go.test.integeration docker.stop
+go-test-integration-update:
+	go test -tags=integration ./... -update
+
+integration-test: docker-start containers-warmup go-test-integration docker-stop
+
+integration-test-update: docker-start containers-warmup go-test-integration-update docker-stop

@@ -4,7 +4,6 @@ package todo
 
 import (
 	"errors"
-	"strings"
 	"testing"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -16,6 +15,7 @@ import (
 	"github.com/nghiant3223/standard-project/internal/todo/apperror"
 	"github.com/nghiant3223/standard-project/internal/todo/model"
 	"github.com/nghiant3223/standard-project/internal/todo/repository"
+	"github.com/nghiant3223/standard-project/pkg/configurator"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
@@ -35,9 +35,7 @@ func TestRepositoryTestSuite(t *testing.T) {
 }
 
 func (s *repositoryTestSuite) SetupSuite() {
-	replacer := strings.NewReplacer(".", "_")
-	viper.SetEnvKeyReplacer(replacer)
-	viper.AutomaticEnv()
+	configurator.Initialize("../../../config", "integration")
 
 	dbURL := viper.GetString("database.url")
 	db, err := gorm.Open(postgres.Open(dbURL), nil)
@@ -66,6 +64,7 @@ func (s *repositoryTestSuite) Test_CreateTodo_Happy() {
 		Title:       "Clean the floor",
 		Description: "Must do it before mom comes home",
 	}
+
 	err := s.repository.Create(&td)
 	s.NoError(err)
 	s.NotZero(td.ID)

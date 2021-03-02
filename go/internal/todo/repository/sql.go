@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 
+	"github.com/nghiant3223/standard-project/internal/todo"
 	apperror "github.com/nghiant3223/standard-project/internal/todo/apperror"
 	"github.com/nghiant3223/standard-project/internal/todo/model"
 	"gorm.io/gorm"
@@ -11,6 +12,8 @@ import (
 type SQLRepository struct {
 	db *gorm.DB
 }
+
+var _ todo.Repository = (*SQLRepository)(nil)
 
 func New(db *gorm.DB) *SQLRepository {
 	return &SQLRepository{db: db}

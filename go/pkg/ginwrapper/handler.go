@@ -9,8 +9,8 @@ import (
 )
 
 type Response struct {
-	Data  interface{}
-	Error error
+	Data  interface{} `json:"data"`
+	Error error       `json:"error,omitempty"`
 }
 
 type HandlerFunc func(ctx *gin.Context) *Response

@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	configurator.Initialize()
+	configurator.Initialize("config", "publicapi")
 }

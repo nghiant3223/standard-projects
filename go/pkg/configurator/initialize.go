@@ -7,14 +7,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Initialize() {
+func Initialize(configPath, configName string) {
 	replacer := strings.NewReplacer(".", "_")
 	viper.SetEnvKeyReplacer(replacer)
 	viper.AutomaticEnv()
 
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("config")
-	viper.SetConfigName("config")
+	viper.AddConfigPath(configPath)
+	viper.SetConfigName(configName)
 
 	err := viper.ReadInConfig()
 	if err != nil {

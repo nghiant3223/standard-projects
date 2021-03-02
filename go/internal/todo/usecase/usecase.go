@@ -11,7 +11,9 @@ type UseCase struct {
 	repository todo.Repository
 }
 
-func NewUseCase(repository todo.Repository) *UseCase {
+var _ todo.UseCase = (*UseCase)(nil)
+
+func New(repository todo.Repository) *UseCase {
 	return &UseCase{repository: repository}
 }
 
