@@ -1,5 +1,6 @@
 .PHONY: docker-start containers-warmup docker-stop \
-		go-test-integration go-test-integration-update integration-test integration-test-update
+		unit-test unit-test-update go-test-integration go-test-integration-update \
+		integration-test integration-test-update
 
 docker-start:
 	@docker-compose up -d
