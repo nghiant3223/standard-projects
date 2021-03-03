@@ -101,8 +101,9 @@ func (s *end2endTestSuite) assertResponseBody(body io.Reader) {
 }
 
 func (s *end2endTestSuite) Test_CreateTodo_Happy() {
+	url := fmt.Sprintf("%s%s", s.baseURL, "/todos")
 	reqBody := `{"title":"Go to the market","description":"Buy some foods and drinks"}`
-	resp, err := http.Post(s.baseURL+"/todos", gin.MIMEJSON, strings.NewReader(reqBody))
+	resp, err := http.Post(url, gin.MIMEJSON, strings.NewReader(reqBody))
 	s.NoError(err)
 	defer resp.Body.Close()
 	s.Equal(http.StatusOK, resp.StatusCode)
