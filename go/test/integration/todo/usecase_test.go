@@ -1,17 +1,15 @@
-// +build integration
-
 package todo
 
 import (
+	"context"
 	"errors"
 	"testing"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/nghiant3223/standard-project/internal/todo"
 	"github.com/nghiant3223/standard-project/internal/todo/model"
 	"github.com/nghiant3223/standard-project/internal/todo/repository"
+	"github.com/nghiant3223/standard-project/internal/todo/usecase"
 	"github.com/nghiant3223/standard-project/pkg/configurator"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -19,19 +17,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type repositoryTestSuite struct {
+type useCaseTestSuite struct {
 	suite.Suite
 
-	repository   todo.Repository
 	dbConnection *gorm.DB
 	dbMigration  *migrate.Migrate
+	useCase      todo.UseCase
 }
 
-func TestRepositoryTestSuite(t *testing.T) {
-	suite.Run(t, &repositoryTestSuite{})
+func TestUseCaseTestSuite(t *testing.T) {
+	suite.Run(t, &useCaseTestSuite{})
 }
 
-func (s *repositoryTestSuite) SetupSuite() {
+func (s *useCaseTestSuite) SetupSuite() {
 	configurator.Initialize("../../../config", "integration")
 
 	dbURL := viper.GetString("database.url")
@@ -43,26 +41,27 @@ func (s *repositoryTestSuite) SetupSuite() {
 	s.NoError(err)
 	s.dbMigration = migration
 
-	s.repository = repository.New(db)
+	repo := repository.New(db)
+	s.useCase = usecase.New(repo)
 }
 
-func (s *repositoryTestSuite) SetupTest() {
+func (s *useCaseTestSuite) SetupTest() {
 	err := s.dbMigration.Up()
 	s.NoError(err)
 }
 
-func (s *repositoryTestSuite) TearDownTest() {
+func (s *useCaseTestSuite) TearDownTest() {
 	err := s.dbMigration.Down()
 	s.NoError(err)
 }
 
-func (s *repositoryTestSuite) Test_CreateTodo_Happy() {
+func (s *useCaseTestSuite) Test_CreateTodo_Happy() {
 	td := model.Todo{
 		Title:       "Clean the floor",
 		Description: "Must do it before mom comes home",
 	}
 
-	err := s.repository.Create(&td)
+	err := s.useCase.CreateTodo(context.Background(), &td)
 	s.NoError(err)
 	s.NotZero(td.ID)
 	result := model.Todo{}
@@ -70,28 +69,28 @@ func (s *repositoryTestSuite) Test_CreateTodo_Happy() {
 	s.NoError(err)
 }
 
-func (s *repositoryTestSuite) Test_GetTodo_Happy() {
+func (s *useCaseTestSuite) Test_GetTodo_Happy() {
 	td := model.Todo{
 		Title:       "Clean the floor",
 		Description: "Must do it before mom comes home",
 	}
 	s.NoError(s.dbConnection.Create(&td).Error)
 
-	result, err := s.repository.Get(td.ID)
+	result, err := s.useCase.GetTodoByID(context.Background(), td.ID)
 	s.NoError(err)
 	s.Equal(td.ID, result.ID)
 	s.Equal(td.Title, result.Title)
 	s.Equal(td.Description, result.Description)
 }
 
-func (s *repositoryTestSuite) Test_DeleteTodo_Happy() {
+func (s *useCaseTestSuite) Test_DeleteTodo_Happy() {
 	td := model.Todo{
 		Title:       "Clean the floor",
 		Description: "Must do it before mom comes home",
 	}
 	s.NoError(s.dbConnection.Create(&td).Error)
 
-	err := s.repository.Delete(td.ID)
+	err := s.useCase.DeleteTodo(context.Background(), td.ID)
 	s.NoError(err)
 	result := model.Todo{}
 	err = s.dbConnection.First(&result, td.ID).Error
